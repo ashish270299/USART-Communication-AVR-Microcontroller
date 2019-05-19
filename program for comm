@@ -1,0 +1,88 @@
+#define  F_CPU 8000000UL
+#include <avr/io.h>
+#include <util/delay.h>
+#include <stdio.h>
+void usart_init(void)
+{UCSRB=(1<<TXEN)|(1<<RXEN);
+	UCSRC=(1<< UCSZ1)| (1<<UCSZ0)|(1<<URSEL);
+	UBRRL=0x33;
+}
+
+void usart_send (unsigned char ch)
+{while (! (UCSRA&(1<<UDRE)));
+	UDR=ch;
+}
+
+
+char usart_read(){
+	
+while (! (UCSRA&(1<<RXC)));	
+	return UDR;
+}
+
+void usartString(const char *p){
+	
+	while(*p)
+	usart_send(*p++);
+}
+
+
+
+int main(void)
+{
+	PORTB= 0xff;
+	_delay_ms(100);
+	DDRC = 0xff;
+	DDRB = 0x00;
+	PORTB = 0xff;
+	
+	usart_init();
+    /* Replace with your application code */
+    usartString("\r\nWelcome to Sofcon");
+	_delay_ms(2000);
+	int x =0;
+	while (1) 
+	{ 
+		
+char str[4] = "";
+sprintf(str,"%d",x);
+	usartString("\r\nvalue of x = ");
+	usartString(str);
+   
+   if (!(PINB&(1<<0)))
+   {  while (!(PINB&(1<<0)));
+	   x++;
+   }
+   
+   // usart_send('A');
+	_delay_ms(1000);
+	
+	if ((UCSRA&(1<<RXC)))
+	{
+		
+		while ((UCSRA&(1<<RXC)))
+		{
+		
+		char read = usart_read();
+		
+		if (read == 'a')
+		{
+		   PORTC ^= 0b01; 
+		}
+		
+		}
+		
+		
+		//usart_send(read);
+		//usartString("\r\n");
+		//usartString(str);
+	}
+	
+	//usart_send('\r');
+	//usart_send('\n');
+   //usart_send('A');
+  //_delay_ms(4000);
+	
+		}
+   return 0; 
+}
